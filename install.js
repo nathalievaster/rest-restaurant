@@ -18,8 +18,7 @@ const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 
 // Sätt upp databasens sökväg
-const dbPath = path.resolve(process.env.DATABASE);
-const db = new sqlite3.Database(dbPath);
+const db = new sqlite3.Database(process.env.DATABASE);
 
 // Skapa tabeller om de inte redan finns
 db.serialize(() => {
