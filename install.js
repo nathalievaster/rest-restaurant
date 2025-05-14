@@ -9,6 +9,7 @@
  * - messages: Kontaktformulärmeddelanden från besökare
  * 
  * OBS: Befintliga tabeller raderas och återskapas.
+ * Skapar även admin
  */
 // Import av paket
 require("dotenv").config();
