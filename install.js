@@ -12,12 +12,15 @@
  */
 // Import av paket
 require("dotenv").config();
-const express = require("express");
+const bcrypt = require("bcrypt");
 const sqlite3 = require("sqlite3").verbose();
+const path = require("path");
 
-const db = new sqlite3.Database(process.env.DATABASE);
+// Sätt upp databasens sökväg
+const dbPath = path.resolve(process.env.DATABASE);
+const db = new sqlite3.Database(dbPath);
 
-// Skapa alla tabeller
+// Skapa tabeller om de inte redan finns
 db.serialize(() => {
     // Ta bort befintliga tabeller om de finns
     db.run("DROP TABLE IF EXISTS users");
@@ -26,7 +29,7 @@ db.serialize(() => {
     db.run("DROP TABLE IF EXISTS tables");
     db.run("DROP TABLE IF EXISTS messages");
 
-    // Användare (admin)
+    // Skapa tabeller
     db.run(`CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT NOT NULL UNIQUE,
@@ -71,5 +74,27 @@ db.serialize(() => {
         created DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
-    console.log("Alla tabeller skapade!");
+    // Skapa admin-användare om den inte redan finns
+    const username = "admin";
+    const password = process.env.ADMIN_PASSWORD; // Hämtar lösenordet från .env
+
+    // Kolla om admin-användaren finns
+    db.get("SELECT id FROM users WHERE username = ?", [username], (err, row) => {
+        if (err) return console.error(err.message);
+        
+        // Om användaren inte finns, skapa den
+        if (!row) {
+            bcrypt.hash(password, 10, (err, hash) => {
+                if (err) return console.error(err);
+                db.run(`INSERT INTO users (username, password) VALUES (?, ?)`, [username, hash], function (err) {
+                    if (err) return console.error(err.message);
+                    console.log("Admin användare skapad.");
+                });
+            });
+        } else {
+            console.log("Admin användare finns redan.");
+        }
+    });
+
+    console.log("Alla tabeller skapades och admin kontrollerades.");
 });
