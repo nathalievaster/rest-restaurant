@@ -6,3 +6,5 @@ const router = express.Router();
 router.post("/login", async (req, res) => {
     console.log ("login called...");
 });
+
+module.exports = router;
