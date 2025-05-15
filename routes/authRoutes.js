@@ -1,3 +1,4 @@
+// Importerar alla paket
 const express = require ("express");
 const router = express.Router();
 const sqlite3 = require("sqlite3").verbose();
@@ -16,13 +17,12 @@ router.post("/login", async (req, res) => {
             return res.status(400).json({ error: "Ogiltig input, fyll i både användarnamn och lösenord"});
         }
 
-        // Kolla om det är rätt
-
         // Kolla om användaren finns
         const sql = `SELECT * FROM users WHERE username=?`;
         db.get(sql, [username], async (err, row) => {
             if(err) {
                 res.status(400).json({message: "Error med autentisering..."});
+                // Användaren finns inte
             } else if (!row) {
                 res.status(401).json({message: "Felaktigt användarnamn eller lösenord"});
             } else {
