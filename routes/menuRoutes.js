@@ -6,6 +6,19 @@ const authenticateToken = require("../middleware/authMiddleware"); // Importera 
 const db = new sqlite3.Database(process.env.DATABASE);
 
 /**
+ * GET – Hämta alla menyobjekt
+ */
+router.get("/menu", (req, res) => {
+    db.all("SELECT * FROM menu_items", (err, rows) => {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: "Kunde inte hämta menyobjekt." });
+        }
+        res.status(200).json(rows);
+    });
+});
+
+/**
  * Lägg till menyobjekt – endast för inloggad admin (JWT-skyddat)
  */
 router.post("/menu", authenticateToken, (req, res) => {
