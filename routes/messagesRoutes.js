@@ -43,4 +43,21 @@ router.post("/messages", (req, res) => {
     });
 });
 
+/**
+ * GET – Hämta alla meddelanden
+ * Skyddad med JWT (endast admin)
+ */
+router.get("/messages", authenticateToken, (req, res) => {
+    const sql = `SELECT * FROM messages ORDER BY created DESC`;
+
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: "Kunde inte hämta meddelanden." });
+        }
+
+        res.status(200).json(rows);
+    });
+});
+
 module.exports = router;
