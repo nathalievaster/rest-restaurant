@@ -4,6 +4,7 @@ require("dotenv").config();
 const authRoutes = require("./routes/authRoutes");
 const menuRoutes = require("./routes/menuRoutes");
 const messagesRoutes = require("./routes/messagesRoutes");
+const tablesRoutes = require("./routes/tablesRoutes");
 const jwt = require("jsonwebtoken");
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(bodyParser.json());
 app.use("/api", authRoutes);
 app.use("/api", menuRoutes);
 app.use("/api", messagesRoutes);
+app.use("/api", tablesRoutes);
 
 // Skyddad admin-sida
 app.get("/api/editmenu", authenticteToken, (req, res) => {
