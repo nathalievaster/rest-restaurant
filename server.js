@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 require("dotenv").config();
 const authRoutes = require("./routes/authRoutes");
 const menuRoutes = require("./routes/menuRoutes");
+const messagesRoutes = require("./routes/messagesRoutes");
 const jwt = require("jsonwebtoken");
 
 const app = express();
@@ -12,6 +13,7 @@ app.use(bodyParser.json());
 // Routes
 app.use("/api", authRoutes);
 app.use("/api", menuRoutes);
+app.use("/api", messagesRoutes);
 
 // Skyddad admin-sida
 app.get("/api/editmenu", authenticteToken, (req, res) => {
