@@ -54,4 +54,64 @@ router.post("/menu", authenticateToken, (req, res) => {
     });
 });
 
+
+/**
+ * PUT – Uppdatera menyobjekt via ID
+ */
+router.put("/menu/:id", authenticateToken, (req, res) => {
+    const id = req.params.id;
+    const { name, description, price, category, available } = req.body;
+
+    // Bygg uppdateringsdelarna dynamiskt, skapa två tomma listor. Fields för vilka fält som ska uppdateras, values för värdet
+    const fields = [];
+    const values = [];
+
+    if (name !== undefined) {
+        fields.push("name = ?");
+        values.push(name);
+    }
+
+    if (description !== undefined) {
+        fields.push("description = ?");
+        values.push(description);
+    }
+
+    if (price !== undefined) {
+        fields.push("price = ?");
+        values.push(price);
+    }
+
+    if (category !== undefined) {
+        fields.push("category = ?");
+        values.push(category);
+    }
+
+    if (available !== undefined) {
+        fields.push("available = ?");
+        values.push(available);
+    }
+
+    // Om inget skickas in
+    if (fields.length === 0) {
+        return res.status(400).json({ error: "Inga giltiga fält att uppdatera." });
+    }
+
+    // Lägg till ID som sista värde för WHERE-klausul
+    const sql = `UPDATE menu_items SET ${fields.join(", ")} WHERE id = ?`;
+    values.push(id);
+
+    db.run(sql, values, function (err) {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: "Kunde inte uppdatera menyobjekt." });
+        }
+
+        if (this.changes === 0) {
+            return res.status(404).json({ message: "Menyobjekt hittades inte." });
+        }
+
+        res.status(200).json({ message: "Menyobjekt uppdaterat!" });
+    });
+});
+
 module.exports = router;
