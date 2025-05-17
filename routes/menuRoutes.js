@@ -114,4 +114,24 @@ router.put("/menu/:id", authenticateToken, (req, res) => {
     });
 });
 
+/**
+ * DELETE – Radera menyobjekt via ID
+ */
+router.delete("/menu/:id", authenticateToken, (req, res) => {
+    const id = req.params.id;
+
+    db.run("DELETE FROM menu_items WHERE id = ?", [id], function (err) {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: "Kunde inte radera menyobjekt." });
+        }
+
+        if (this.changes === 0) {
+            return res.status(404).json({ message: "Menyobjekt hittades inte." });
+        }
+
+        res.status(200).json({ message: "Menyobjekt raderat!" });
+    });
+});
+
 module.exports = router;
