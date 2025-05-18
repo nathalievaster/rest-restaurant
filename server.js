@@ -4,7 +4,7 @@ require("dotenv").config();
 const authRoutes = require("./routes/authRoutes");
 const menuRoutes = require("./routes/menuRoutes");
 const messagesRoutes = require("./routes/messagesRoutes");
-const tablesRoutes = require("./routes/tablesRoutes");
+const tablesRoutes = require("./routes/tableRoutes");
 const jwt = require("jsonwebtoken");
 
 const app = express();
