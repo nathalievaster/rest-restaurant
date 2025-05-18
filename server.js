@@ -5,6 +5,7 @@ const authRoutes = require("./routes/authRoutes");
 const menuRoutes = require("./routes/menuRoutes");
 const messagesRoutes = require("./routes/messagesRoutes");
 const tablesRoutes = require("./routes/tableRoutes");
+const bookingRoutes = require("./routes/bookingRoutes");
 const jwt = require("jsonwebtoken");
 
 const app = express();
@@ -16,6 +17,7 @@ app.use("/api", authRoutes);
 app.use("/api", menuRoutes);
 app.use("/api", messagesRoutes);
 app.use("/api", tablesRoutes);
+app.use("/api", bookingRoutes);
 
 // Skyddad admin-sida
 app.get("/api/editmenu", authenticteToken, (req, res) => {
