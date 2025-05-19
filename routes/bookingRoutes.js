@@ -10,10 +10,6 @@ const db = new sqlite3.Database(process.env.DATABASE);
  */
 router.post("/bookings", (req, res) => {
     const { name, email, guests, date, time } = req.body;
-
-    if (!name || !email || !guests || !date || !time) {
-        return res.status(400).json({ error: "Alla fält krävs för att göra en bokning." });
-    }
     const errors = [];
 
     if (!name) {

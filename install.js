@@ -20,6 +20,9 @@ const path = require("path");
 // Sätt upp databasens sökväg
 const db = new sqlite3.Database(process.env.DATABASE);
 
+// Aktivera foreign key-stöd direkt efter anslutning
+db.run("PRAGMA foreign_keys = ON");
+
 // Skapa tabeller om de inte redan finns
 db.serialize(() => {
     // Ta bort befintliga tabeller om de finns
@@ -62,7 +65,9 @@ db.serialize(() => {
         guests INTEGER NOT NULL,
         date TEXT NOT NULL,
         time TEXT NOT NULL,
-        created DATETIME DEFAULT CURRENT_TIMESTAMP
+        table_id INTEGER,
+        created DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (table_id) REFERENCES tables(id)
     )`);
 
     // Meddelanden från kontaktformulär
@@ -81,7 +86,7 @@ db.serialize(() => {
     // Kolla om admin-användaren finns
     db.get("SELECT id FROM users WHERE username = ?", [username], (err, row) => {
         if (err) return console.error(err.message);
-        
+
         // Om användaren inte finns, skapa den
         if (!row) {
             bcrypt.hash(password, 10, (err, hash) => {
