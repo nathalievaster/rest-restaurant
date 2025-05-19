@@ -20,41 +20,64 @@ router.post("/bookings", (req, res) => {
         errors.push("Du måste fylla i email.");
     }
 
-    if(!guests) {
+    if (!guests) {
         errors.push("DU måste fylla i antal gäster.");
     }
 
-    if(!date) {
+    if (!date) {
         errors.push("Du måste fylla i datum.");
     }
 
-    if(!date) {
+    if (!date) {
         errors.push("Du måste fylla i tid.");
     }
-    
+
     if (errors.length > 0) {
         return res.status(400).json({ errors });
     }
 
-
-    const sql = `
-        INSERT INTO bookings (name, email, guests, date, time)
-        VALUES (?, ?, ?, ?, ?)
+    // 1. Hitta ledigt bord
+    const tableSql = `
+        SELECT id, seats FROM tables
+        WHERE id NOT IN (
+        SELECT table_id FROM bookings WHERE date = ? AND time = ?
+        ) AND seats >= ?
+        ORDER BY seats ASC
+        LIMIT 1
     `;
-    const values = [name, email, guests, date, time];
 
-    db.run(sql, values, function (err) {
+    db.get(tableSql, [date, time, guests], (err, table) => {
         if (err) {
             console.error(err.message);
-            return res.status(500).json({ error: "Kunde inte spara bokningen." });
+            return res.status(500).json({ error: "Kunde inte hämta bord." });
         }
 
-        res.status(201).json({
-            message: "Bokning skickad!",
-            bookingId: this.lastID
+        if (!table) {
+            return res.status(400).json({ message: "Inga lediga bord för vald tid och antal gäster." });
+        }
+
+        // 2. Spara bokningen med kopplat bord
+        const insertSql = `
+            INSERT INTO bookings (name, email, guests, date, time, table_id)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+        const values = [name, email, guests, date, time, table.id];
+
+        db.run(insertSql, values, function (err) {
+            if (err) {
+                console.error(err.message);
+                return res.status(500).json({ error: "Kunde inte spara bokningen." });
+            }
+
+            res.status(201).json({
+                message: "Bokning skapad!",
+                bookingId: this.lastID,
+                assignedTable: table.id
+            });
         });
     });
 });
+
 
 /**
  * GET /bookings – Lista alla bokningar (endast admin)
