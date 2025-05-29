@@ -17,7 +17,7 @@ router.post("/messages", (req, res) => {
     const errors = [];
 
     if(!name) {
-        errors.push("Du måste fylla i användarnamn.")
+        errors.push("Du måste fylla i namn.")
     }
 
     if(!email) {
