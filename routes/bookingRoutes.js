@@ -113,4 +113,43 @@ router.delete("/bookings/:id", authenticateToken, (req, res) => {
     });
 });
 
+/**
+ * PUT /bookings/:id – Uppdatera en bokning (endast admin)
+ */
+router.put("/bookings/:id", authenticateToken, (req, res) => {
+    const id = req.params.id;
+    const { name, email, guests, date, time } = req.body;
+    const errors = [];
+
+    if (!name) errors.push("Namn saknas.");
+    if (!email) errors.push("Email saknas.");
+    if (!guests) errors.push("Antal gäster saknas.");
+    if (!date) errors.push("Datum saknas.");
+    if (!time) errors.push("Tid saknas.");
+
+    if (errors.length > 0) {
+        return res.status(400).json({ errors });
+    }
+
+    const sql = `
+        UPDATE bookings
+        SET name = ?, email = ?, guests = ?, date = ?, time = ?
+        WHERE id = ?
+    `;
+    const params = [name, email, guests, date, time, id];
+
+    db.run(sql, params, function (err) {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: "Kunde inte uppdatera bokningen." });
+        }
+
+        if (this.changes === 0) {
+            return res.status(404).json({ message: "Bokning hittades inte." });
+        }
+
+        res.status(200).json({ message: "Bokning uppdaterad!" });
+    });
+});
+
 module.exports = router;
