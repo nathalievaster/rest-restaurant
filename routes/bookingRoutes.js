@@ -36,6 +36,34 @@ router.post("/bookings", (req, res) => {
         return res.status(400).json({ errors });
     }
 
+    // Kontrollera öppettider
+    const bookingDate = new Date(`${date}T${time}`);
+    const day = bookingDate.getDay(); // 0 = söndag, ..., 6 = lördag
+    const hour = bookingDate.getHours();
+    const minute = bookingDate.getMinutes();
+    const totalMinutes = hour * 60 + minute;
+
+    let isOpen = false;
+
+    if (day >= 0 && day <= 4) {
+        // Sön–Tors: 11:00–22:00
+        if (totalMinutes >= 11 * 60 && totalMinutes <= 22 * 60) {
+            isOpen = true;
+        }
+    } else if (day === 5 || day === 6) {
+        // Fre–Lör: 12:00–sent (tolkat som till 23:59)
+        if (totalMinutes >= 12 * 60 && totalMinutes <= 23 * 60 + 59) {
+            isOpen = true;
+        }
+    }
+
+    if (!isOpen) {
+        return res.status(400).json({
+            message: "Bokningen måste ske under restaurangens öppettider."
+        });
+    }
+
+
     // 1. Hitta ledigt bord
     const tableSql = `
         SELECT id, seats FROM tables
