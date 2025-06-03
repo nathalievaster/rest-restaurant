@@ -111,7 +111,17 @@ router.post("/bookings", (req, res) => {
  * GET /bookings – Lista alla bokningar (endast admin)
  */
 router.get("/bookings", authenticateToken, (req, res) => {
-    db.all("SELECT * FROM bookings ORDER BY created DESC", (err, rows) => {
+    const now = new Date().toISOString(); // ISO-format: "2025-06-02T15:45:00.000Z"
+    const currentDate = now.slice(0, 10); // "2025-06-02"
+    const currentTime = now.slice(11, 16); // "15:45"
+
+    const sql = `
+        SELECT * FROM bookings
+        WHERE (date > ? OR (date = ? AND time > ?))
+        ORDER BY date ASC, time ASC
+    `;
+
+    db.all(sql, [currentDate, currentDate, currentTime], (err, rows) => {
         if (err) {
             console.error(err.message);
             return res.status(500).json({ error: "Kunde inte hämta bokningar." });
@@ -120,6 +130,7 @@ router.get("/bookings", authenticateToken, (req, res) => {
         res.status(200).json(rows);
     });
 });
+
 
 /**
  * DELETE /bookings/:id – Radera en bokning (endast admin)
