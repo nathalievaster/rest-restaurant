@@ -29,8 +29,8 @@ Webbtjänsten erbjuder följande:
 ### 1. Klona repot
 
 ```bash
-git clone https://github.com/ditt-repo/restaurang-api.git
-cd restaurang-api
+git clone https://github.com/nathalievaster/rest-restaurant.git
+cd rest-restaurant
 ```
 
 ### 2. Installera beroenden
